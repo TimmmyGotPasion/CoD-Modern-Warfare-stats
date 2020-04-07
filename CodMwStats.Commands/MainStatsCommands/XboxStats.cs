@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using CodMwStats.ApiWrapper;
 using CodMwStats.ApiWrapper.Models;
+using CodMwStats.Commands.ImageGenerationFiles;
+using CoreHtmlToImage;
 using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
@@ -16,52 +19,37 @@ namespace CodMwStats.Commands.MainStatsCommands
         [Alias("Statsxbl")]
         public async Task Statsxbl([Remainder] string userName)
         {
-            var jsonAsString =
-                await ApiProcessor.GetUser($"https://api.tracker.gg/api/v2/modern-warfare/standard/profile/xbl/{userName}");
+            var jsonAsString = await ApiProcessor.GetUser($"https://api.tracker.gg/api/v2/modern-warfare/standard/profile/xbl/{userName}");
             var apiData = JsonConvert.DeserializeObject<ModerWarfareApiOutput>(jsonAsString);
 
             var name = apiData.Data.PlatformInfo.PlatformUserHandle;
             var pfp = apiData.Data.PlatformInfo.AvatarUrl;
-            var playTime = apiData.Data.Segment[0].Stats.TimePlayedTotal.Value;
-            var matches = apiData.Data.Segment[0].Stats.TotalGamesPlayed.Value;
+            var playTime = apiData.Data.Segment[0].Stats.TimePlayedTotal.DisplayValue;
+            var matches = apiData.Data.Segment[0].Stats.TotalGamesPlayed.DisplayValue;
             var levelImg = apiData.Data.Segment[0].Stats.Level.Metadata.IconUrl;
-            var level = apiData.Data.Segment[0].Stats.Level.Value;
-            var levelper = apiData.Data.Segment[0].Stats.LevelProgression.Value;
-            var kd = apiData.Data.Segment[0].Stats.KdRatio.Value;
-            var kills = apiData.Data.Segment[0].Stats.Kills.Value;
-            var WinPer = apiData.Data.Segment[0].Stats.WlRatio.Value;
-            var wins = apiData.Data.Segment[0].Stats.Wins.Value;
-            var bestKillsreak = apiData.Data.Segment[0].Stats.LongestKillstreak.Value;
-            var losses = apiData.Data.Segment[0].Stats.Losses.Value;
-            var deaths = apiData.Data.Segment[0].Stats.Deaths.Value;
-            var avgLife = apiData.Data.Segment[0].Stats.AverageLife.Value;
-            var assists = apiData.Data.Segment[0].Stats.Assists.Value;
-            var Score = apiData.Data.Segment[0].Stats.CareerScore.Value;
+            var level = apiData.Data.Segment[0].Stats.Level.DisplayValue;
+            var levelper = apiData.Data.Segment[0].Stats.LevelProgression.DisplayValue;
+            var kd = apiData.Data.Segment[0].Stats.KdRatio.DisplayValue;
+            var kills = apiData.Data.Segment[0].Stats.Kills.DisplayValue;
+            var WinPer = apiData.Data.Segment[0].Stats.WlRatio.DisplayValue;
+            var wins = apiData.Data.Segment[0].Stats.Wins.DisplayValue;
+            var bestKillsreak = apiData.Data.Segment[0].Stats.LongestKillstreak.DisplayValue;
+            var losses = apiData.Data.Segment[0].Stats.Losses.DisplayValue;
+            var deaths = apiData.Data.Segment[0].Stats.Deaths.DisplayValue;
+            var avgLife = apiData.Data.Segment[0].Stats.AverageLife.DisplayValue;
+            var assists = apiData.Data.Segment[0].Stats.Assists.DisplayValue;
+            var score = apiData.Data.Segment[0].Stats.CareerScore.DisplayValue;
+            var accuracy = apiData.Data.Segment[0].Stats.Accuracy.DisplayValue;
+            var headshotaccuracy = apiData.Data.Segment[0].Stats.HeadshotPercentage.DisplayValue;
 
-            var embed = new EmbedBuilder();
-            embed.WithTitle($"Stats of {name}");
-            embed.WithThumbnailUrl(pfp);
-            embed.AddField("Play Time:", playTime);
-            embed.AddField("Matches:", matches);
-            embed.AddField("Level:", level);
-            embed.AddField("Level Progression:", levelper);
-            embed.WithImageUrl(levelImg.ToString());
-            embed.AddField("K/D Ratio:", kd);
-            embed.AddField("Kills:", kills);
-            embed.AddField("Win %:", WinPer);
-            embed.AddField("Wins:", wins);
-
-            embed.AddField("Best Killstreak:", bestKillsreak);
-            embed.AddField("Losses:", losses);
-            embed.AddField("Deaths:", deaths);
-            embed.AddField("Avg. Life:", avgLife);
-            embed.AddField("Assists:", assists);
-            embed.AddField("Score:", Score);
-
-
-            embed.WithColor(new Color(239, 133, 141));
-
-            var msg = await Context.Channel.SendMessageAsync("", false, embed.Build());
+            var converter = new HtmlConverter();
+            var generationStrings = new HtmlStrings();
+            string css = generationStrings.MultiplayerCss(levelper);
+            string html = String.Format(generationStrings.MultiplayerHtml(name, pfp, playTime, matches, levelImg.ToString(), level, levelper, kd, kills, WinPer, wins, bestKillsreak, losses, deaths, avgLife, assists, score, accuracy, headshotaccuracy));
+            int width = 520;
+            var bytes = converter.FromHtmlString(css + html, width, CoreHtmlToImage.ImageFormat.Png);
+            File.WriteAllBytes("Resources/XBLStats.png", bytes);
+            await Context.Channel.SendFileAsync(new MemoryStream(bytes), "Resources/XBLStats.png");
         }
     }
 }

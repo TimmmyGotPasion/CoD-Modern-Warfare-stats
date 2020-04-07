@@ -10,15 +10,15 @@ using CoreHtmlToImage;
 using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
-using ImageFormat = CoreHtmlToImage.ImageFormat;
+using ImageFormat = Discord.ImageFormat;
 
-namespace CodMwStats.Commands.MainStatsCommands
+namespace CodMwStats.Commands.WarzoneStatsCommands
 {
-    public class BattleNetStats : ModuleBase<SocketCommandContext>
+    public class BattleNetWarzoneStats : ModuleBase<SocketCommandContext>
     {
-        [Command("Stats-battlenet")]
-        [Alias("StatsBN")]
-        public async Task StatsBN([Remainder] string userName)
+        [Command("WarzoneStats-battlenet")]
+        [Alias("WZStatsBN")]
+        public async Task StatsBNWarzone([Remainder] string userName)
         {
             if (userName.Contains("#"))
             {
@@ -34,13 +34,15 @@ namespace CodMwStats.Commands.MainStatsCommands
                 return;
             }
 
-            var jsonAsString = await ApiProcessor.GetUser($"https://api.tracker.gg/api/v2/modern-warfare/standard/profile/battlenet/{userName}");
+            var jsonAsString =
+                await ApiProcessor.GetUser(
+                    $"https://api.tracker.gg/api/v2/warzone/standard/profile/battlenet/{userName}");
             var apiData = JsonConvert.DeserializeObject<ModerWarfareApiOutput>(jsonAsString);
 
             var name = apiData.Data.PlatformInfo.PlatformUserHandle;
             var pfp = apiData.Data.PlatformInfo.AvatarUrl;
-            var playTime = apiData.Data.Segment[0].Stats.TimePlayedTotal.DisplayValue;
-            var matches = apiData.Data.Segment[0].Stats.TotalGamesPlayed.DisplayValue;
+            var playTime = apiData.Data.Segment[0].Stats.TimePlayed.DisplayValue;
+            var matches = apiData.Data.Segment[0].Stats.GamesPlayed.DisplayValue;
             var levelImg = apiData.Data.Segment[0].Stats.Level.Metadata.IconUrl;
             var level = apiData.Data.Segment[0].Stats.Level.DisplayValue;
             var levelper = apiData.Data.Segment[0].Stats.LevelProgression.DisplayValue;
@@ -48,23 +50,26 @@ namespace CodMwStats.Commands.MainStatsCommands
             var kills = apiData.Data.Segment[0].Stats.Kills.DisplayValue;
             var WinPer = apiData.Data.Segment[0].Stats.WlRatio.DisplayValue;
             var wins = apiData.Data.Segment[0].Stats.Wins.DisplayValue;
-            var bestKillsreak = apiData.Data.Segment[0].Stats.LongestKillstreak.DisplayValue;
-            var losses = apiData.Data.Segment[0].Stats.Losses.DisplayValue;
             var deaths = apiData.Data.Segment[0].Stats.Deaths.DisplayValue;
             var avgLife = apiData.Data.Segment[0].Stats.AverageLife.DisplayValue;
-            var assists = apiData.Data.Segment[0].Stats.Assists.DisplayValue;
-            var score = apiData.Data.Segment[0].Stats.CareerScore.DisplayValue;
-            var accuracy = apiData.Data.Segment[0].Stats.Accuracy.DisplayValue;
-            var headshotaccuracy = apiData.Data.Segment[0].Stats.HeadshotPercentage.DisplayValue;
+            var score = apiData.Data.Segment[0].Stats.Score.DisplayValue;
+            var scoreGame = apiData.Data.Segment[0].Stats.ScorePerGame.DisplayValue;
+            var top5 = apiData.Data.Segment[0].Stats.TopFive.DisplayValue;
+            var top10 = apiData.Data.Segment[0].Stats.TopTen.DisplayValue;
+            var downs = apiData.Data.Segment[0].Stats.Downs.DisplayValue;
+            var contracts = apiData.Data.Segment[0].Stats.Contracts.DisplayValue;
+
 
             var converter = new HtmlConverter();
             var generationStrings = new HtmlStrings();
-            string css = generationStrings.MultiplayerCss(levelper);
-            string html = String.Format(generationStrings.MultiplayerHtml(name, pfp, playTime, matches, levelImg.ToString(), level, levelper, kd, kills, WinPer, wins, bestKillsreak, losses, deaths, avgLife, assists, score, accuracy, headshotaccuracy));
+            string css = generationStrings.WarzoneCss(levelper);
+            string html = String.Format(generationStrings.WarzoneHtml(name, pfp, playTime, matches, levelImg.ToString(),
+                level, levelper, kd, kills, WinPer, wins, deaths, avgLife, score, top5, top10, downs, scoreGame,
+                contracts));
             int width = 520;
-            var bytes = converter.FromHtmlString(css + html, width, ImageFormat.Png);
-            File.WriteAllBytes("Resources/BNStats.png", bytes);
-            await Context.Channel.SendFileAsync(new MemoryStream(bytes), "Resources/BNStats.png");
+            var bytes = converter.FromHtmlString(css + html, width, CoreHtmlToImage.ImageFormat.Png);
+            File.WriteAllBytes("Resources/BNWarzoneStats.png", bytes);
+            await Context.Channel.SendFileAsync(new MemoryStream(bytes), "Resources/BNWarzoneStats.png");
         }
     }
 }

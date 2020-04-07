@@ -19,8 +19,14 @@ namespace CodMwStats.ApiWrapper.Models
         [JsonProperty("timePlayedTotal")]
         public Information TimePlayedTotal { get; set; }
 
+        [JsonProperty("timePlayed")]
+        public Information TimePlayed { get; set; }
+
         [JsonProperty("totalGamesPlayed")]
         public Information TotalGamesPlayed { get; set; }
+
+        [JsonProperty("gamesPlayed")]
+        public Information GamesPlayed { get; set; }
 
         [JsonProperty("level")]
         public Information Level { get; set; }
@@ -57,5 +63,26 @@ namespace CodMwStats.ApiWrapper.Models
 
         [JsonProperty("careerScore")]
         public Information CareerScore { get; set; }
+
+        [JsonProperty("score")]
+        public Information Score { get; set; }
+
+        [JsonProperty("accuracy")]
+        public Information Accuracy { get; set; }
+
+        [JsonProperty("headshotPercentage")]
+        public Information HeadshotPercentage { get; set; }
+
+        [JsonProperty("downs")]
+        public Information Downs { get; set; }
+
+        [JsonProperty("top5")]
+        public Information TopFive { get; set; }
+
+        [JsonProperty("top10")]
+        public Information TopTen { get; set; }
+
+        [JsonProperty("contracts")]
+        public Information Contracts { get; set; }
     }
 }
