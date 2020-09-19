@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="2.1.1" />
+    <PackageReference Include="Discord.Net.Core" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AccountLogic\CodMwStats.AccountLogic.csproj" />
+    <ProjectReference Include="..\CodMwStats.ApiWrapper\CodMwStats.ApiWrapper.csproj" />
+    <ProjectReference Include="..\CodMwStats.Commands\CodMwStats.Commands.csproj" />
+  </ItemGroup>
+
+</Project>
